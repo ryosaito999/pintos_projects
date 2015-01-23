@@ -32,6 +32,12 @@ static void real_time_delay (int64_t num, int32_t denom);
 
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
+
+struct sleepingList {
+
+  struct list sleepingList;
+};
+
 void
 timer_init (void) 
 {
@@ -91,13 +97,15 @@ timer_sleep (int64_t ticks)
 {
   int64_t start = timer_ticks ();
 
+
+
   ASSERT (intr_get_level () == INTR_ON);
   while (timer_elapsed (start) < ticks) 
     thread_yield ();
 
   //THIS IS A GIT TEST PLZ LOOK AT THIS
   //Also a test plzg
-  //Test3
+
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
