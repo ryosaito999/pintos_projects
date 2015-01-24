@@ -35,11 +35,11 @@ static void real_time_delay (int64_t num, int32_t denom);
 
 
 /* Declarations to use List */
+//NEW
 struct sleeping {
   struct list_elem sleepingElem; // Need to declare our own sleepingList for our sleepQueue 
-  int waitTime; //Item in list will sleep x seconds
+  int waitTime; //Item in list will sleep x seconds ?? Not sure yet 
   Thread *t; // Current thread being added
-
 };
 
 struct list sleepQueue; // ListName
@@ -105,13 +105,15 @@ timer_sleep (int64_t ticks)
   int64_t start = timer_ticks ();
   ASSERT (intr_get_level () == INTR_ON);
 
-  
+
 
   
   //Calculate n=  wait time
   //ASSSERT
   //Put on sleep queue for n ticks
   //Thread_block();
+
+  //Neeed an unblock func.
 
 
   /*while (timer_elapsed (start) < ticks) 
