@@ -47,7 +47,7 @@ timer_init (void)
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
 
-  list_init(); // Initialize List -> see list.c & list.h
+  list_init(&sleepQueue); // Initialize List -> see list.c & list.h
 
 
 }
@@ -106,7 +106,11 @@ timer_sleep (int64_t ticks)
   ASSERT (intr_get_level () == INTR_ON);
 
   
-  
+  //Calculate n=  wait time
+  //ASSSERT
+  //Put on sleep queue for n ticks
+  //Thread_block();
+
 
   /*while (timer_elapsed (start) < ticks) 
     thread_yield ();*/
