@@ -36,7 +36,10 @@ static void real_time_delay (int64_t num, int32_t denom);
 
 /* Declarations to use List */
 struct sleeping {
-  struct list sleepingElem; // Need to declare our own sleepingList for our sleepQueue
+  struct list_elem sleepingElem; // Need to declare our own sleepingList for our sleepQueue 
+  int waitTime; //Item in list will sleep x seconds
+  Thread *t; // Current thread being added
+
 };
 
 struct list sleepQueue; // ListName
@@ -46,10 +49,7 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-
   list_init(&sleepQueue); // Initialize List -> see list.c & list.h
-
-
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -106,6 +106,8 @@ timer_sleep (int64_t ticks)
   ASSERT (intr_get_level () == INTR_ON);
 
   
+
+  
   //Calculate n=  wait time
   //ASSSERT
   //Put on sleep queue for n ticks
@@ -113,7 +115,7 @@ timer_sleep (int64_t ticks)
 
 
   /*while (timer_elapsed (start) < ticks) 
-    thread_yield ();*/
+    thread_yield ();*/ // Subject for removal
 
   //THIS IS A GIT TEST PLZ LOOK AT THIS
   //Also a test plzg
