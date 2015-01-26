@@ -98,7 +98,7 @@ void
 timer_sleep (int64_t ticks) 
 {
   struct thread * currThread = thread_current();
-  currThread->sleepTimer = ticks + timer_ticks ();
+  currThread->sleepTimer = timer_ticks ();
 
   ASSERT (intr_get_level () == INTR_ON);
 
