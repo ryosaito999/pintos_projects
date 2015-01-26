@@ -204,8 +204,11 @@ timer_interrupt (struct intr_frame *args UNUSED)
           t->sleepTimer--; //huh?
 
           if( t->sleepTimer <= 0   ){
-              //thread_unblock(t); Causes program to crash??????
+              intr_disable ();
+              thread_unblock(t); //Causes program to crash??????
               list_remove(e);   
+              intr_enable ();
+
           }
 
       }
