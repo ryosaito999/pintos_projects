@@ -98,17 +98,17 @@ void
 timer_sleep (int64_t ticks) 
 {
   struct thread * currThread = thread_current();
-  currThread->sleepTimer = ticks;
+  currThread->sleepTimer = ticks + timer_ticks ();
 
   ASSERT (intr_get_level () == INTR_ON);
 
-  enum intr_level old_level = intr_disable (); //Disable interrupts to push onto list and block
+  intr_disable (); //Disable interrupts to push onto list and block
   printf("THIS THREAD %s IS BLOCKED. SLEEPING FOR %u TICKS AND IS ON SLEEPLIST \n" , thread_name(), ticks); //Keep track of blocked thread REMOVE PLZ
   list_push_back (&sleepingList, &currThread->elem);
   ASSERT (!list_empty(&sleepingList));
 
-  thread_block();
-  intr_set_level (old_level);
+  thread_block ();
+  intr_enable ();
 
 }
 
