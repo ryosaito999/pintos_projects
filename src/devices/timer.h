@@ -26,4 +26,8 @@ void timer_ndelay (int64_t nanoseconds);
 
 void timer_print_stats (void);
 
+/*NEW*/
+void list_foreachwake(struct  list * sleep );
+static void wakeUpSleepers(struct thread * t);
+
 #endif /* devices/timer.h */

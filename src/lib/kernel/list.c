@@ -230,10 +230,7 @@ list_push_back (struct list *list, struct list_elem *elem)
    The list_remove() return value provides a convenient way to
    iterate and remove elements from a list:
 
-   for (e = list_begin (&list); e != list_end (&list); e = list_remove (e))
-     {
-       ...do something with e...
-     }
+
 
    If you need to free() elements of the list then you need to be
    more conservative.  Here's an alternate strategy that works

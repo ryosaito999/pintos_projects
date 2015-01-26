@@ -30,26 +30,21 @@ static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
+/* Keeps track of what threads are current sleeping. Will be 
+removed by timer interrupt handler  when thread wakes */
+static struct list sleepingList;
+
+
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
 
-
-/* Declarations to use List */
-//NEW
-struct sleeping {
-  struct list_elem sleepingElem; // Need to declare our own sleepingList for our sleepQueue 
-  int waitTime; //Item in list will sleep x seconds ?? Not sure yet 
-  Thread *t; // Current thread being added
-};
-
-struct list sleepQueue; // ListName
 
 void
 timer_init (void) 
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-  list_init(&sleepQueue); // Initialize List -> see list.c & list.h
+  list_init(&sleepingList);
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -102,25 +97,18 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks) 
 {
-  int64_t start = timer_ticks ();
+
+  struct thread * currThread = thread_current();
+  currThread->sleepTimer = ticks;
+
   ASSERT (intr_get_level () == INTR_ON);
 
+  enum intr_level old_level = intr_disable (); //Disable interrupts to push onto list and block
+  printf("THIS THREAD %s IS BLOCKED. SLEEPING FOR %u TICKS AND IS ON SLEEPLIST \n" , thread_name(), ticks); //Keep track of blocked thread REMOVE PLZ
+  list_push_back (&sleepingList, &currThread->elem);
 
-
-  
-  //Calculate n=  wait time
-  //ASSSERT
-  //Put on sleep queue for n ticks
-  //Thread_block();
-
-  //Neeed an unblock func.
-
-
-  /*while (timer_elapsed (start) < ticks) 
-    thread_yield ();*/ // Subject for removal
-
-  //THIS IS A GIT TEST PLZ LOOK AT THIS
-  //Also a test plzg
+  thread_block();
+  intr_set_level (old_level);
 
 }
 
@@ -193,14 +181,37 @@ timer_print_stats (void)
 {
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
-
+
+static void
+list_foreachwake(struct list * sleep){
+
+   for (e = list_begin (&sleep); e != list_end (&sleep);
+       e = list_next (e)){
+
+   }
+
+}
+
+static void wakeUpSleepers(struct thread * t){
+
+}
+
+
+
 /* Timer interrupt handler. */
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
+  list_foreachwake(&sleepingList); //Executes function on EVERY THREAD, ignore aux for now since we are using our own function
   ticks++;
   thread_tick ();
 }
+
+/* NEW will check thread t if it needs to wake up. Will be used in for each so every thread will be checked at every tick in
+interrrupt handler*/
+
+
+
 
 /* Returns true if LOOPS iterations waits for more than one timer
    tick, otherwise false. */
