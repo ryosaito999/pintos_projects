@@ -29,8 +29,6 @@ static struct list ready_list;
 static struct list all_list;
 
 
-
-
 /* Idle thread. */
 static struct thread *idle_thread;
 

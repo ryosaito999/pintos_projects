@@ -198,9 +198,9 @@ timer_interrupt (struct intr_frame *args UNUSED)
        e = list_next (e)){
 
       if( !list_empty(&sleepingList) ){
-        
-        struct thread *t = list_entry (e, struct thread, allelem);
-        printf("name: Not Empty\n" ); //why doesnt thread name appear?
+
+        struct thread *t = list_entry (e, struct thread, elem);
+        printf("name: %s\n", t->name ); //why doesnt thread name appear?
       }
   }
 
