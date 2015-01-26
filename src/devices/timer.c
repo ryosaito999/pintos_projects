@@ -97,7 +97,6 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks) 
 {
-
   struct thread * currThread = thread_current();
   currThread->sleepTimer = ticks;
 
@@ -106,6 +105,7 @@ timer_sleep (int64_t ticks)
   enum intr_level old_level = intr_disable (); //Disable interrupts to push onto list and block
   printf("THIS THREAD %s IS BLOCKED. SLEEPING FOR %u TICKS AND IS ON SLEEPLIST \n" , thread_name(), ticks); //Keep track of blocked thread REMOVE PLZ
   list_push_back (&sleepingList, &currThread->elem);
+  ASSERT (!list_empty(&sleepingList));
 
   thread_block();
   intr_set_level (old_level);
@@ -182,19 +182,6 @@ timer_print_stats (void)
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
 
-static void
-list_foreachwake(struct list * sleep){
-
-   for (e = list_begin (&sleep); e != list_end (&sleep);
-       e = list_next (e)){
-
-   }
-
-}
-
-static void wakeUpSleepers(struct thread * t){
-
-}
 
 
 
@@ -202,13 +189,26 @@ static void wakeUpSleepers(struct thread * t){
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-  list_foreachwake(&sleepingList); //Executes function on EVERY THREAD, ignore aux for now since we are using our own function
+  //list_foreachwake(&sleepingList); //Executes function on EVERY THREAD, ignore aux for now since we are using our own function
+  
+  struct list_elem *e;
+
+
+  for (e = list_begin (&sleepingList); e != list_end (&sleepingList);
+       e = list_next (e)){
+
+      if( !list_empty(&sleepingList) ){
+        
+        struct thread *t = list_entry (e, struct thread, allelem);
+        printf("name: Not Empty\n" );
+      }
+  }
+
   ticks++;
   thread_tick ();
 }
 
-/* NEW will check thread t if it needs to wake up. Will be used in for each so every thread will be checked at every tick in
-interrrupt handler*/
+
 
 
 
