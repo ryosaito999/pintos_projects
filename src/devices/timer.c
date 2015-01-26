@@ -103,7 +103,6 @@ timer_sleep (int64_t ticks)
   ASSERT (intr_get_level () == INTR_ON);
 
   intr_disable (); //Disable interrupts to push onto list and block
-  printf("THIS THREAD %s IS BLOCKED. SLEEPING FOR %u TICKS AND IS ON SLEEPLIST \n" , thread_name(), ticks); //Keep track of blocked thread REMOVE PLZ
   list_push_back (&sleepingList, &currThread->elem);
   ASSERT (!list_empty(&sleepingList));
 
@@ -201,14 +200,12 @@ timer_interrupt (struct intr_frame *args UNUSED)
 
           struct thread *t = list_entry (e, struct thread, elem);
           
-          t->sleepTimer--; //huh?
+          t->sleepTimer--; 
 
-          if( t->sleepTimer <= 0   ){
-              intr_disable ();
+          if( t->sleepTimer <= 0   ){ //huh?
+              e = list_prev(list_remove(e));   
+
               thread_unblock(t); //Causes program to crash??????
-              list_remove(e);   
-              intr_enable ();
-
           }
 
       }
