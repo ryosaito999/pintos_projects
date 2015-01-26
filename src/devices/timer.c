@@ -189,23 +189,30 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-  //list_foreachwake(&sleepingList); //Executes function on EVERY THREAD, ignore aux for now since we are using our own function
   
   struct list_elem *e;
 
-
+  ticks++;
+  thread_tick ();
   for (e = list_begin (&sleepingList); e != list_end (&sleepingList);
        e = list_next (e)){
 
       if( !list_empty(&sleepingList) ){
 
-        struct thread *t = list_entry (e, struct thread, elem);
-        printf("name: %s\n", t->name ); //why doesnt thread name appear?
-      }
-  }
+          struct thread *t = list_entry (e, struct thread, elem);
+          
+          t->sleepTimer--; //huh?
 
-  ticks++;
-  thread_tick ();
+          if( t->sleepTimer <= 0   ){
+              //thread_unblock(t); Causes program to crash??????
+              list_remove(e);   
+          }
+
+      }
+
+
+
+  }
 }
 
 
