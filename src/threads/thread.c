@@ -375,7 +375,7 @@ thread_get_nice (void)
 int
 thread_get_load_avg (void) 
 {
-  /* Not yet implemented. */
+  /* Not yet implemented. f*/
   return 0;
 }
 
