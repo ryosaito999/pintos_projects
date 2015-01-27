@@ -92,7 +92,6 @@ struct thread
     
     /*NEW - User defined Variables */
     unsigned sleepTimer; //time threads need to sleep
-   
 
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */

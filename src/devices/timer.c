@@ -98,21 +98,21 @@ void
 timer_sleep (int64_t ticks) 
 {
 
-  if( ticks <= 0){
+  //Make sure that ticks is a valid postive value
+  if( ticks <= 0){ 
     return;
   }
-  
+
   struct thread * currThread = thread_current();
   currThread->sleepTimer = ticks;
 
   ASSERT (intr_get_level () == INTR_ON);
 
   intr_disable (); //Disable interrupts to push onto list and block
-  list_push_back (&sleepingList, &currThread->elem);
-  ASSERT (!list_empty(&sleepingList));
+  list_push_back (&sleepingList, &currThread->elem); //pushback onto list
 
-  thread_block ();
-  intr_enable ();
+  thread_block (); //block the thread
+  intr_enable (); //reenable intreuppts
 
 }
 
@@ -187,6 +187,31 @@ timer_print_stats (void)
 }
 
 
+/* NEW - Private function that checks what threads need to be unblocked that are blocked and stored in sleepingList
+Will unblock and remove from list if thread needs to wake*/
+void checkSleeping(){
+
+  struct list_elem *e;
+
+  //iterate through sleepingList 
+  for (e = list_begin (&sleepingList); e != list_end (&sleepingList);
+       e = list_next (e)){
+
+      //make sure to run only if sleepingList has blocked contents
+      if( !list_empty(&sleepingList) ){
+
+          struct thread *t = list_entry (e, struct thread, elem);
+          
+          t->sleepTimer--; //tick all sleeping Threads , whether they need to wake or not wake
+
+          //remove from list and unblock if sleep timer is done
+          if( t->sleepTimer <= 0   ){  
+              e = list_prev(list_remove(e));   
+              thread_unblock(t); 
+          }
+      }
+  }
+}
 
 
 /* Timer interrupt handler. */
@@ -194,31 +219,14 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   
-  struct list_elem *e;
 
   ticks++;
   thread_tick ();
-  for (e = list_begin (&sleepingList); e != list_end (&sleepingList);
-       e = list_next (e)){
-
-      if( !list_empty(&sleepingList) ){
-
-          struct thread *t = list_entry (e, struct thread, elem);
-          
-          t->sleepTimer--; 
-
-          if( t->sleepTimer <= 0   ){ //huh?
-              e = list_prev(list_remove(e));   
-
-              thread_unblock(t); //Causes program to crash??????
-          }
-
-      }
-
-
-
-  }
+  
+  checkSleeping();
 }
+
+
 
 
 
