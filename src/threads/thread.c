@@ -233,6 +233,17 @@ thread_block (void)
   schedule ();
 }
 
+
+
+//comparision fucntion for organizing threads by priority
+bool thread_priority_compare (const struct list_elem *a, const struct list_elem * b, void * aux UNUSED ){
+    
+    struct thread *x = list_entry (a, struct thread, elem);
+    struct thread *y = list_entry (b, struct thread, elem);
+
+    return x-> priority > y->priority;
+}
+
 /* Transitions a blocked thread T to the ready-to-run state.
    This is an error if T is not blocked.  (Use thread_yield() to
    make the running thread ready.)
@@ -250,9 +261,11 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_push_back (&ready_list, &t->elem);
+  list_insert_ordered(&ready_list, &t->elem, thread_priority_compare ,NULL); //change adding to rdy_list by sorting it by priority after adding thread
   t->status = THREAD_READY;
   intr_set_level (old_level);
+
+
 }
 
 /* Returns the name of the running thread. */
@@ -349,9 +362,10 @@ void
 thread_set_priority (int new_priority) 
 {
 
+    return thread_current ()->priority;
+
     if( thread_current() -> priority < new_priority ){
 
-        
         //donate priority and wait for currently running thread to relase lock!
         // if no lock is occuring then just run the highest prio thread
         // also where does thread actually handle & calculate priority??
