@@ -354,7 +354,7 @@ thread_set_priority (int new_priority)
         
         //donate priority and wait for currently running thread to relase lock!
         // if no lock is occuring then just run the highest prio thread
-        //
+        // also where does thread actually handle & calculate priority??
     } 
 
     else
