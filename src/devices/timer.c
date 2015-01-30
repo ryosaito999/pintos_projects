@@ -102,14 +102,14 @@ timer_sleep (int64_t ticks)
   }
 
   struct thread * currThread = thread_current();
-  currThread->sleepTimer = ticks;
-
+  
   ASSERT (intr_get_level () == INTR_ON);
-
   intr_disable (); //Disable interrupts to push onto list and block
+  
+  currThread->sleepTimer = ticks;
   list_push_back (&sleepingList, &currThread->elem); //pushback onto list
-
   thread_block (); //block the thread
+  
   intr_enable (); //reenable intreuppts
 
 }
