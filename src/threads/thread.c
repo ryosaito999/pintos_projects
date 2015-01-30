@@ -22,6 +22,8 @@
 
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
+
+/*Needs to be a priority queue for handling thread priority*/
 static struct list ready_list;
 
 /* List of all processes.  Processes are added to this list
@@ -346,14 +348,31 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-  thread_current ()->priority = new_priority;
+
+    if( thread_current() -> priority < new_priority ){
+
+        
+        //donate priority and wait for currently running thread to relase lock!
+        // if no lock is occuring then just run the highest prio thread
+        //
+    } 
+
+    else
+    {
+      //?? 
+    }
+
+  //Need to setup locking and unlocking
+  //Need to be able to check thread priotity to makes ure we dont go backwards in pritority
+
 }
 
 /* Returns the current thread's priority. */
 int
 thread_get_priority (void) 
 {
-  return thread_current ()->priority;
+  return thread_current ()->priority; /*CHANGE PLZ*/
+
 }
 
 /* Sets the current thread's nice value to NICE. */
@@ -496,7 +515,7 @@ alloc_frame (struct thread *t, size_t size)
 static struct thread *
 next_thread_to_run (void) 
 {
-  if (list_empty (&ready_list))
+  if (list_empty (&ready_list)) 
     return idle_thread;
   else
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
