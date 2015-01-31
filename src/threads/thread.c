@@ -334,7 +334,7 @@ thread_yield (void)
 
   old_level = intr_disable ();
   if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+    list_insert_ordered(&ready_list, &cur->elem, thread_priority_compare ,NULL); //change adding to rdy_list by sorting it by priority after adding thread
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -357,28 +357,42 @@ thread_foreach (thread_action_func *func, void *aux)
     }
 }
 
+// NEW
+/*New priority < old priority -> Yield the thread and let thread with higher priority run if any*/
+void priority_yield( int new_priority){
+
+  if(list_empty(&ready_list)){
+      return;
+  }
+
+  thread_current()-> priority = new_priority;
+  struct list_elem * head_elem = (list_head(&ready_list));
+
+  struct thread *t = list_entry (head_elem, struct thread, elem);
+
+
+  //if( thread_current()-> priority <   )
+
+}
+
+
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority) 
 {
 
-    return thread_current ()->priority;
-
-    if( thread_current() -> priority < new_priority ){
-
-        //donate priority and wait for currently running thread to relase lock!
-        // if no lock is occuring then just run the highest prio thread
-        // also where does thread actually handle & calculate priority??
+    if( thread_current() -> priority > new_priority ){
+        
+        priority_yield(new_priority );
     } 
 
-    else
-    {
-      //?? 
+    else if( thread_current() -> priority == new_priority ){
+      return;  //dont do anything if priorites are the sam
     }
+    
 
   //Need to setup locking and unlocking
   //Need to be able to check thread priotity to makes ure we dont go backwards in pritority
-
 }
 
 /* Returns the current thread's priority. */
