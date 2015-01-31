@@ -68,7 +68,7 @@ sema_down (struct semaphore *sema)
   old_level = intr_disable ();
   while (sema->value == 0) 
     {
-      list_push_back (&sema->waiters, &thread_current ()->elem);
+      list_insert_ordered(&sema->waiters, &thread_current ()->elem, thread_priority_compare ,NULL);
       thread_block ();
     }
   sema->value--;
@@ -217,6 +217,11 @@ lock_try_acquire (struct lock *lock)
   success = sema_try_down (&lock->semaphore);
   if (success)
     lock->holder = thread_current ();
+  /*else
+    donate_priority(lock->holder);
+
+   */
+   
   return success;
 }
 
