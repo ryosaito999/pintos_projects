@@ -361,20 +361,16 @@ thread_foreach (thread_action_func *func, void *aux)
 /*New priority < old priority -> Yield the thread and let thread with higher priority run if any*/
 void priority_yield( int new_priority){
 
-  if(list_empty(&ready_list)){
-      return;
-  }
-
   thread_current()-> priority = new_priority;
-  struct list_elem * head_elem = (list_head(&ready_list));
-
-  struct thread *t = list_entry (head_elem, struct thread, elem);
-
-
-  //if( thread_current()-> priority <   )
+  thread_yield();
 
 }
 
+
+//handle priority donation here if new priority is greater 
+void priority_donation(int new_priority){
+  
+}
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
@@ -387,7 +383,12 @@ thread_set_priority (int new_priority)
     } 
 
     else if( thread_current() -> priority == new_priority ){
-      return;  //dont do anything if priorites are the sam
+      return;  //dont do anything if priorites are the same
+    }
+
+    else{
+
+      priority_donation(new_priority);
     }
     
 
