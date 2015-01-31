@@ -241,7 +241,7 @@ bool thread_priority_compare (const struct list_elem *a, const struct list_elem 
     struct thread *x = list_entry (a, struct thread, elem);
     struct thread *y = list_entry (b, struct thread, elem);
 
-    return x-> priority > y->priority;
+    return x-> received_priority > y->received_priority;
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
