@@ -32,6 +32,10 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 
+
+
+
+
 /* Initializes semaphore SEMA to VALUE.  A semaphore is a
    nonnegative integer along with two atomic operators for
    manipulating it:
@@ -196,8 +200,22 @@ lock_acquire (struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
 
+  intr_disable();
+
+  if(lock->holder != NULL){
+
+    printf("<1>\n");
+  }
+  
+  intr_enable();
+
+
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
+  if(lock->holder != NULL){
+
+    printf("<2>\n");
+  }
 }
 
 /* Tries to acquires LOCK and returns true if successful or false

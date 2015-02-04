@@ -4,6 +4,9 @@
 #include <list.h>
 #include <stdbool.h>
 
+
+
+//bool priority_high_low(const struct list_elem *, const struct list_elem *, void *);
 /* A counting semaphore. */
 struct semaphore 
   {
