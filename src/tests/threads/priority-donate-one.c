@@ -30,7 +30,7 @@ test_priority_donate_one (void)
 
   lock_init (&lock);
   lock_acquire (&lock);
-  ASSERT( lock.holder != NULL);
+
 
   thread_create ("acquire1", PRI_DEFAULT + 1, acquire1_thread_func, &lock);
   msg ("This thread should have priority %d.  Actual priority: %d.",
