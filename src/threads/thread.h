@@ -154,6 +154,7 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //NEW
 void priority_yield( int new_priority);
 void priority_donation(int new_priority);
@@ -162,6 +163,8 @@ void priority_donation(int new_priority);
 
 bool thread_priority_compare (const struct list_elem *a, const struct list_elem * b, void * aux UNUSED );
 
+=======
+>>>>>>> parent of 003c15e... compare header
 =======
 >>>>>>> parent of 003c15e... compare header
 #endif /* threads/thread.h */
