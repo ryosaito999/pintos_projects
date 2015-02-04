@@ -241,7 +241,9 @@ bool thread_priority_compare (const struct list_elem *a, const struct list_elem 
     struct thread *x = list_entry (a, struct thread, elem);
     struct thread *y = list_entry (b, struct thread, elem);
 
-    return x-> received_priority > y->received_priority;
+    //return x-> received_priority > y->received_priority; //using standard priority for now until I figure out implementation
+    return x-> priority > y->priority;
+
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -361,15 +363,16 @@ thread_foreach (thread_action_func *func, void *aux)
 /*New priority < old priority -> Yield the thread and let thread with higher priority run if any*/
 void priority_yield( int new_priority){
 
-  thread_current()-> priority = new_priority;
+  thread_current()->priority = new_priority;
   thread_yield();
-
 }
 
 
 //handle priority donation here if new priority is greater 
 void priority_donation(int new_priority){
   
+  thread_current()->priority = new_priority;
+
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
@@ -379,7 +382,7 @@ thread_set_priority (int new_priority)
 
     if( thread_current() -> priority > new_priority ){
         
-        priority_yield(new_priority );
+        priority_yield(new_priority) ;
     } 
 
     else if( thread_current() -> priority == new_priority ){
@@ -387,13 +390,9 @@ thread_set_priority (int new_priority)
     }
 
     else{
-
       priority_donation(new_priority);
     }
-    
-
   //Need to setup locking and unlocking
-  //Need to be able to check thread priotity to makes ure we dont go backwards in pritority
 }
 
 /* Returns the current thread's priority. */
@@ -518,7 +517,15 @@ init_thread (struct thread *t, const char *name, int priority)
   t->status = THREAD_BLOCKED;
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
-  t->priority = priority;
+  
+  //initalize list of donors
+  list_init(&t->waiting_thread_list);
+
+  
+  //Priority Usage Variables
+  t->priority = priority; 
+  t->received_priority = priority; //NEW
+  
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
 }

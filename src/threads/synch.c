@@ -176,7 +176,6 @@ void
 lock_init (struct lock *lock)
 {
   ASSERT (lock != NULL);
-
   lock->holder = NULL;
   sema_init (&lock->semaphore, 1);
 }
@@ -196,11 +195,13 @@ lock_acquire (struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
 
-  sema_down (&lock->semaphore);
-  lock->holder = thread_current ();
+
+  sema_down (&lock->semaphore); 
+  lock->holder = thread_current();
+  
 }
 
-/* Tries to acquires LOCK and returns true if successful or false
+/* Tries to acquires LOCK and returns true if successful or falseddddddddd
    on failure.  The lock must not already be held by the current
    thread.
 
@@ -217,10 +218,6 @@ lock_try_acquire (struct lock *lock)
   success = sema_try_down (&lock->semaphore);
   if (success)
     lock->holder = thread_current ();
-  /*else
-    donate_priority(lock->holder);
-
-   */
    
   return success;
 }
@@ -236,8 +233,27 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
+  enum intr_level old_level;
+  old_level = intr_disable ();
+
+  struct thread * cur = thread_current();
+  struct list_elem * e;
+
+
+  ASSERT( list_empty(&cur->waiting_thread_list));
+  for (e = list_begin (&cur->waiting_thread_list); e != list_end (&cur->waiting_thread_list);
+       e = list_next (e)){
+
+      printf("<2>\n");
+  }
+
+  intr_set_level (old_level);
+
+
+
   lock->holder = NULL;
   sema_up (&lock->semaphore);
+
 }
 
 /* Returns true if the current thread holds LOCK, false
@@ -250,7 +266,7 @@ lock_held_by_current_thread (const struct lock *lock)
 
   return lock->holder == thread_current ();
 }
-
+
 /* One semaphore in a list. */
 struct semaphore_elem 
   {
