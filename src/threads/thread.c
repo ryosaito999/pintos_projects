@@ -73,13 +73,11 @@ static tid_t allocate_tid (void);
 
 //NEW -- comparator function for comparing thread priorities
 
-static bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED){
-
+bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux){
   struct thread * x = list_entry(a, struct thread, elem);
   struct thread * y = list_entry(b, struct thread, elem);
 
   return x->priority > y->priority;
-
 }
 
 
@@ -331,7 +329,8 @@ thread_yield (void)
 
   old_level = intr_disable ();
   if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+  	list_insert_ordered(&ready_list, &cur->elem, priority_high_low, NULL);
+  //list_push_back (&ready_list, &cur->elem);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);

@@ -152,6 +152,8 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
-void sort_high_to_low_priority(void);
+void sort_high_to_low_priority(void);//huh?
+static bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux);
+
 
 #endif /* threads/thread.h */
