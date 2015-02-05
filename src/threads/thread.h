@@ -89,7 +89,7 @@ struct thread
     uint8_t *stack;                     /* Saved stack pointer. */
     
     int priority;                       /* Priority. */
-    int priority_saved;                 
+    int priority_native;                 
 
     struct list_elem allelem;           /* List element for all threads list. */
     
@@ -105,6 +105,9 @@ struct thread
     //list for waiting threads if thread is lock
     struct list waiting_thread_list;
     struct list_elem waiting_thread_elem;
+
+    struct list donor_queue;
+    struct list_elem donor;
 
 
 #ifdef USERPROG
@@ -153,7 +156,7 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 void sort_high_to_low_priority(void);//huh?
-static bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux);
-
+bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux);
+void donate_priority (const thread * receiver);
 
 #endif /* threads/thread.h */

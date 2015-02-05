@@ -357,7 +357,15 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-  thread_current ()->priority = new_priority;
+  thread_current ()->priority_native = new_priority;
+  if (thread_current ()->priority < new_priority)
+	thread_current ()->priority = new_priority;
+}
+
+void thread_donate_priority (struct thread * receiver) {
+  list_push_back(&receiver->donor_queue, &thread_current()->donor);
+  
+
 }
 
 /* Returns the current thread's priority. */
@@ -483,7 +491,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
 
   t->priority = priority;
-  t->priority_saved = priority;
+  t->priority_native = priority;
 
   list_init(&t->waiting_thread_list);
 
@@ -600,7 +608,7 @@ allocate_tid (void)
 
   return tid;
 }
-
+
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
