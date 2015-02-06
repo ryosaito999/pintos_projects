@@ -206,6 +206,9 @@ thread_create (const char *name, int priority,
   ef = alloc_frame (t, sizeof *ef);
   ef->eip = (void (*) (void)) kernel_thread;
 
+  /*init donor list*/
+  list_init(&t->donor_queue);
+
   /* Stack frame for switch_threads(). */
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
@@ -351,7 +354,7 @@ thread_foreach (thread_action_func *func, void *aux)
 
 void thread_update_priority (struct thread * t) {
   t->priority = t->priority_native;
-  if (!list_empty(&t->donor_queue)) {
+  if (list_empty(&t->donor_queue)) {
     int p = list_entry(list_max (&t->donor_queue, priority_high_low, NULL), struct thread, donor)->priority;
     if (p>t->priority)
       t->priority = p;
@@ -359,6 +362,7 @@ void thread_update_priority (struct thread * t) {
 }
 
 void thread_donate_priority (struct thread * receiver) {
+  printf("%d",);
   list_push_back(&receiver->donor_queue, &thread_current()->donor);
   thread_update_priority (receiver);
 }
