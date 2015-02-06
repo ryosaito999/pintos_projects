@@ -199,6 +199,7 @@ lock_acquire (struct lock *lock)
 
   if(lock-> holder != NULL){
   		
+  		//time to work on this part
   }
 
   sema_down (&lock->semaphore);
