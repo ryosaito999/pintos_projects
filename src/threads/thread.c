@@ -353,20 +353,38 @@ thread_foreach (thread_action_func *func, void *aux)
     }
 }
 
+void thread_resort_single (struct thread * t) {
+  list_remove (&t->elem);
+  list_insert_ordered(&ready_list, &t->elem, priority_high_low, NULL);
+}
+
+void thread_update_priority (struct thread * t) {
+  if (!list_empty(&t->donor_queue)) {
+    int p = list_entry(list_max (&t->donor_queue, priority_high_low, NULL), struct thread, donor)->priority;
+    if (p>t->priority)
+      t->priority = p;
+  }
+  if (t->priority < t->priority_native)
+    t->priority = t->priority_native;
+}
+
+void thread_donate_priority (struct thread * receiver) {
+  list_push_back(&receiver->donor_queue, &thread_current()->donor);
+  thread_update_priority (receiver);
+  thread_resort_single (receiver);
+}
+
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority_native = new_priority;
   if (thread_current ()->priority < new_priority)
-	thread_current ()->priority = new_priority;
+    thread_current ()->priority = new_priority;
+  else if (thread_current ()->priority_native)
+    thread_yield ();
 }
 
-void thread_donate_priority (struct thread * receiver) {
-  list_push_back(&receiver->donor_queue, &thread_current()->donor);
-  
-
-}
 
 /* Returns the current thread's priority. */
 int
