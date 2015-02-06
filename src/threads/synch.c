@@ -199,6 +199,8 @@ lock_acquire (struct lock *lock)
 
   if(lock-> holder != NULL){
   		
+  		if(lock-> holder->priority < thread_current()->priority )
+  			list_push_back(&lock-> holder->donor_queue, &thread_current()->donor);
   }
 
   sema_down (&lock->semaphore);
