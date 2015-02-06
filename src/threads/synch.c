@@ -32,8 +32,6 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 
-//test
-
 /* Initializes semaphore SEMA to VALUE.  A semaphore is a
    nonnegative integer along with two atomic operators for
    manipulating it:

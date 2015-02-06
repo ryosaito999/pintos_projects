@@ -378,11 +378,13 @@ void thread_donate_priority (struct thread * receiver) {
 void
 thread_set_priority (int new_priority) 
 {
-  thread_current ()->priority_native = new_priority;
+  /*thread_current ()->priority_native = new_priority;
   int old_priority = thread_current ()->priority;
-  thread_update_priority (thread_current ()); 
+  //thread_update_priority (thread_current ()); 
   if (thread_current ()->priority < old_priority)
     thread_yield ();
+  */
+  thread_current ()->priority = new_priority;
 }
 
 
@@ -511,7 +513,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->priority_native = priority;
 
-  list_init(&t->waiting_thread_list);
+  list_init(&t->donor_queue);
 
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
