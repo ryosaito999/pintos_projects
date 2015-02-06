@@ -68,13 +68,8 @@ sema_down (struct semaphore *sema)
   old_level = intr_disable ();
   while (sema->value == 0) 
     {
-<<<<<<< HEAD
-      list_push_back (&sema->waiters, &thread_current ()->elem);
-      //list_insert_ordered(&sema->waiters, &thread_current ()->elem, priority_high_low, NULL);
-=======
       //order semaphore wait list by priority
-      list_insert_ordered(&sema->waiters, &thread_current ()->elem, priority_high_low, NULL);
->>>>>>> 5ec1923ad40a1d7d7996d76e92b466035b0d4fd3
+      list_push_back (&sema->waiters, &thread_current ()->elem);
       thread_block ();
     }
   sema->value--;
