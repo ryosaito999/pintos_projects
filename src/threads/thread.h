@@ -155,8 +155,10 @@ int thread_get_load_avg (void);
 
 void sort_high_to_low_priority(void);//huh?
 bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux);
+bool priority_greater_comp(const struct list_elem *a, const struct list_elem *b, void *aux);
 void thread_update_priority (struct thread * t);
 void thread_donate_priority (struct thread * receiver);
+void thread_release_donors (struct lock * l);
 void thread_resort_single (struct thread * t);
 
 #endif /* threads/thread.h */
