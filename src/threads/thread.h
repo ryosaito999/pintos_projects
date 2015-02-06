@@ -102,9 +102,7 @@ struct thread
     //lock thread is waiting for --not sure if needed
     //struct lock wait_lock;
 
-    //list for waiting threads if thread is lock
-    struct list waiting_thread_list;
-    struct list_elem waiting_thread_elem;
+
 
     struct list donor_queue;
     struct list_elem donor;
