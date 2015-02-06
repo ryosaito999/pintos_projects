@@ -374,6 +374,10 @@ void thread_donate_priority (struct thread * receiver) {
   //printf("new receiver priority: %d\n\n", receiver->priority);
 }
 
+void thread_release_donors (struct thread * lock) {
+  
+}
+
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority)
