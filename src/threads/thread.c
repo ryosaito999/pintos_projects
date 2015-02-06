@@ -71,6 +71,8 @@ static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
+
+//sorts priority from low to high for comparision
 bool priority_high_low(const struct list_elem *a, const struct list_elem *b, void *aux){
   struct thread * x = list_entry(a, struct thread, elem);
   struct thread * y = list_entry(b, struct thread, elem);
@@ -78,6 +80,7 @@ bool priority_high_low(const struct list_elem *a, const struct list_elem *b, voi
   return x->priority < y->priority;
 }
 
+//sorts priority from  high to low for comparision function
 bool priority_greater_comp(const struct list_elem *a, const struct list_elem *b, void *aux){
   struct thread * x = list_entry(a, struct thread, elem);
   struct thread * y = list_entry(b, struct thread, elem);
@@ -356,22 +359,24 @@ thread_foreach (thread_action_func *func, void *aux)
     }
 }
 
+/* handles getting the highest priority frrom our list of donors and sets the lock to the highest recived priority*/
+
 void thread_update_priority (struct thread * t) {
-  t->priority = t->priority_native;
+  t->priority = t->priority_native; //save old priority for lock
   if (!list_empty(&t->donor_queue)) {
-    int p = list_entry(list_max (&t->donor_queue, priority_greater_comp, NULL), struct thread, donor)->priority;
-    //printf("p = %d \n", p);
+    int p = list_entry(list_max (&t->donor_queue, priority_greater_comp, NULL), struct thread, donor)->priority; //get the highest priority from donor list
     if (p>t->priority)
-      t->priority = p;
+      t->priority = p; // set the new priority if it is greater
   }
 }
 
+
+/* is called by lock_acquire(). push back thread onto the lock's donor list for further processing */
+
 void thread_donate_priority (struct thread * receiver) {
-  //printf("receiver priority: %d\n", receiver->priority);
-  //printf("donor priority: %d\n", thread_current ()->priority);
+
   list_push_back(&receiver->donor_queue, &thread_current()->donor);
   thread_update_priority (receiver);
-  //printf("new receiver priority: %d\n\n", receiver->priority);
 }
 
 void thread_release_donors (struct thread * lock) {
@@ -385,10 +390,13 @@ thread_set_priority (int new_priority)
   int old_priority = thread_current ()-> priority;
   thread_current ()->priority_native = new_priority;
   thread_update_priority (thread_current ());
+  
+  //yield and check rdylist if lowering current thread priority  
   if (thread_current ()->priority < list_entry(list_max (&ready_list, 
   priority_high_low, NULL), struct thread, elem)->priority && new_priority < old_priority)
     thread_yield();
 }
+
 
 /* Returns the current thread's priority. */
 int
@@ -511,8 +519,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->status = THREAD_BLOCKED;
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
-  t->priority = priority;
-  t->priority_native = priority;
+  t->priority = priority; 
+  t->priority_native = priority; //NEW save priority in both members
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
   /*init donor list*/
