@@ -206,6 +206,11 @@ thread_create (const char *name, int priority,
   ef = alloc_frame (t, sizeof *ef);
   ef->eip = (void (*) (void)) kernel_thread;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 91e4c91e700df5bdd350e4151d74a9d562de3920
   /* Stack frame for switch_threads(). */
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
@@ -359,9 +364,15 @@ void thread_update_priority (struct thread * t) {
 }
 
 void thread_donate_priority (struct thread * receiver) {
+<<<<<<< HEAD
   printf("%s -> %s", thread_current()->name, receiver->name);
   list_push_back(&receiver->donor_queue, &thread_current()->donor);
   printf("%d \n", list_size(&receiver->donor_queue));
+=======
+  
+  list_insert_ordered(&receiver->donor_queue, &thread_current()->donor, priority_high_low, NULL );
+  //CRASHES HERE
+>>>>>>> 91e4c91e700df5bdd350e4151d74a9d562de3920
   thread_update_priority (receiver);
 }
 
