@@ -206,16 +206,13 @@ thread_create (const char *name, int priority,
   ef = alloc_frame (t, sizeof *ef);
   ef->eip = (void (*) (void)) kernel_thread;
 
-  /*init donor list*/
-  list_init(&t->donor_queue);
-
   /* Stack frame for switch_threads(). */
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
   sf->ebp = 0;
 
   intr_set_level (old_level);
-  
+
     /* Add to run queue. */
   thread_unblock (t);
 
@@ -362,8 +359,9 @@ void thread_update_priority (struct thread * t) {
 }
 
 void thread_donate_priority (struct thread * receiver) {
-  printf("%d",);
+  printf("%s -> %s", thread_current()->name, receiver->name);
   list_push_back(&receiver->donor_queue, &thread_current()->donor);
+  printf("%d \n", list_size(&receiver->donor_queue));
   thread_update_priority (receiver);
 }
 
@@ -503,6 +501,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
+  /*init donor list*/
+  list_init(&t->donor_queue);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
