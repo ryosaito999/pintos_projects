@@ -379,9 +379,9 @@ void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority_native = new_priority;
-  if (thread_current ()->priority < new_priority)
-    thread_current ()->priority = new_priority;
-  else if (thread_current ()->priority_native)
+  int old_priority = thread_current ()->priority;
+  thread_update_priority (thread_current ()); 
+  if (thread_current ()->priority < old_priority)
     thread_yield ();
 }
 
