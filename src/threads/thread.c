@@ -78,6 +78,13 @@ bool priority_high_low(const struct list_elem *a, const struct list_elem *b, voi
   return x->priority < y->priority;
 }
 
+bool priority_greater_comp(const struct list_elem *a, const struct list_elem *b, void *aux){
+  struct thread * x = list_entry(a, struct thread, elem);
+  struct thread * y = list_entry(b, struct thread, elem);
+
+  return x->priority > y->priority;
+}
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -206,11 +213,6 @@ thread_create (const char *name, int priority,
   ef = alloc_frame (t, sizeof *ef);
   ef->eip = (void (*) (void)) kernel_thread;
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 91e4c91e700df5bdd350e4151d74a9d562de3920
   /* Stack frame for switch_threads(). */
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
@@ -356,24 +358,20 @@ thread_foreach (thread_action_func *func, void *aux)
 
 void thread_update_priority (struct thread * t) {
   t->priority = t->priority_native;
-  if (list_empty(&t->donor_queue)) {
-    int p = list_entry(list_max (&t->donor_queue, priority_high_low, NULL), struct thread, donor)->priority;
+  if (!list_empty(&t->donor_queue)) {
+    int p = list_entry(list_max (&t->donor_queue, priority_greater_comp, NULL), struct thread, donor)->priority;
+    //printf("p = %d \n", p);
     if (p>t->priority)
       t->priority = p;
   }
 }
 
 void thread_donate_priority (struct thread * receiver) {
-<<<<<<< HEAD
-  printf("%s -> %s", thread_current()->name, receiver->name);
+  //printf("receiver priority: %d\n", receiver->priority);
+  //printf("donor priority: %d\n", thread_current ()->priority);
   list_push_back(&receiver->donor_queue, &thread_current()->donor);
-  printf("%d \n", list_size(&receiver->donor_queue));
-=======
-  
-  list_insert_ordered(&receiver->donor_queue, &thread_current()->donor, priority_high_low, NULL );
-  //CRASHES HERE
->>>>>>> 91e4c91e700df5bdd350e4151d74a9d562de3920
   thread_update_priority (receiver);
+  //printf("new receiver priority: %d\n\n", receiver->priority);
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
@@ -510,6 +508,7 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
+  t->priority_native = priority;
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
   /*init donor list*/
