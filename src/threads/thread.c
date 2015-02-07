@@ -359,7 +359,8 @@ thread_foreach (thread_action_func *func, void *aux)
 void thread_update_priority (struct thread * t) {
   t->priority = t->priority_native;
   if (!list_empty(&t->donor_queue)) {
-    int p = list_entry(list_max (&t->donor_queue, priority_greater_comp, NULL), struct thread, donor)->priority;
+    int p = list_entry(list_max (&t->donor_queue, 
+            priority_greater_comp, NULL), struct thread, donor)->priority;
     //printf("p = %d \n", p);
     if (p>t->priority)
       t->priority = p;
@@ -373,10 +374,6 @@ void thread_donate_priority (struct thread * receiver) {
   thread_update_priority (receiver);
   //printf("new receiver priority: %d\n\n", receiver->priority);
 }
-
-//void thread_release_donors (struct lock * l) {
-  
-//}
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void

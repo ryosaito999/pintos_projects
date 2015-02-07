@@ -113,15 +113,19 @@ sema_up (struct semaphore *sema)
 
   ASSERT (sema != NULL);
 
+  struct thread * t;
   old_level = intr_disable ();
   if (!list_empty (&sema->waiters)) {
-    struct thread * t = list_entry(list_max (&sema->waiters, priority_greater_comp, NULL), struct thread, elem);
+    t = list_entry(list_min (&sema->waiters, priority_greater_comp, NULL), struct thread, elem);
     list_remove(&t->elem);
     thread_unblock (t);
   }
 
   sema->value++;
   intr_set_level (old_level);
+
+  if (t->priority > thread_current ()->priority)
+    thread_yield ();
 }
 
 static void sema_test_helper (void *sema_);
@@ -236,6 +240,35 @@ lock_try_acquire (struct lock *lock)
   return success;
 }
 
+bool waiter_found (struct list *waiters, struct thread *t) {
+  struct list_elem *w;
+  for (w = list_begin (waiters); 
+  w != list_end (waiters);
+  w = list_next (w)) {
+    if (list_entry (w, struct thread, elem)==t)
+	return true;
+  }
+  return false;
+}
+
+void release_donors (struct lock * l)
+{
+  struct list *wait =  &(l->semaphore).waiters;
+  struct list_elem *d;
+
+  for (d = list_begin (&thread_current ()->donor_queue); 
+  d != list_end (&thread_current ()->donor_queue);
+  d = list_next (d))
+  {
+    if (waiter_found (wait ,list_entry (d, struct thread, donor)))  {
+      list_remove (d);
+      d = list_prev (d);
+    }
+  }
+  
+  thread_update_priority (thread_current ());
+}
+
 /* Releases LOCK, which must be owned by the current thread.
 
    An interrupt handler cannot acquire a lock, so it does not
@@ -247,7 +280,7 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
-  
+  release_donors (lock);
   lock->holder = NULL;
   sema_up (&lock->semaphore);
 }
