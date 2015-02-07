@@ -361,7 +361,6 @@ void thread_update_priority (struct thread * t) {
   if (!list_empty(&t->donor_queue)) {
     int p = list_entry(list_max (&t->donor_queue, 
             priority_greater_comp, NULL), struct thread, donor)->priority;
-    //printf("p = %d \n", p);
     if (p>t->priority)
       t->priority = p;
   }
